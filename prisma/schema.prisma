@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id String @id @unique @default(uuid())
+  email String @unique @db.VarChar()
+  cpf String @unique @db.VarChar() 
+  name String @db.VarChar()
+  phone_number String  @db.VarChar()
+  birthdate DateTime @db.Date()
+  is_seller Boolean @db.Boolean()
+  description String @db.VarChar()
+  is_superuser Boolean @db.Boolean()
+  address Int @db.Integer()
+}
+
+model Address {
+  id String @id @unique @default(uuid())
+  cep String @db.VarChar()
+  state String @db.VarChar()
+  city String @db.VarChar()
+  street String @db.VarChar()
+  number String @db.VarChar()
+  complement String @db.VarChar()
+}
+
+model Advertise {
+  id String @id @unique @default(uuid())
+  //seller = id.seller
+  //vehicle = vehicle.id
+  is_active Boolean @db.Boolean()
+  is_auction Boolean @db.Boolean()
+  created_at DateTime @db.Time()
+}
+
+model Comment {
+  id String @id @unique @default(uuid())
+  // id.user
+  comment String @db.VarChar()
+  // advertise.id
+  created_at DateTime @db.Time()
+}
+
+model Bid {
+  id String @id @unique @default(uuid())
+  // id.user
+  offer Float @db.DoublePrecision()
+  // advertise.id
+  created_at DateTime @db.Time()
+}
+model Vehicle {
+  id String @id @unique @default(uuid())
+  cover_img_url String @db.VarChar()
+  is_car Boolean @db.Boolean()
+  name String @db.VarChar()
+  price Float @db.DoublePrecision()
+  year Int @db.Integer()
+  brand String @db.VarChar()
+  km Int @db.Integer()
+  description String @db.VarChar()
+  is_avalable Boolean @db.Boolean()
+}
