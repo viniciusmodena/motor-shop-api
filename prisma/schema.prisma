@@ -21,6 +21,8 @@ model User {
   address  Address[] @relation(name:"userAddress")
   advertises Advertise[] @relation(name: "seller")
   comments Comment[] @relation(name:"comment")
+  bids Bid[] 
+
 
   @@map("user")
 }
@@ -45,20 +47,28 @@ model Advertise {
   vehicleId String @map("vehicleId")
   is_active Boolean @db.Boolean()
   is_auction Boolean @db.Boolean()
+  vehicleType VehicleType @default(CAR) 
   created_at DateTime @db.Time()
+  comments  Comment[] @relation("comments")
+  bids Bid[] 
 }
 
 model Comment {
   id String @id @unique @default(uuid())
-  commentId String @map("commentId")
-  commentUser User @relation(name:"comment", fields: [commentId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @map("userId")
+  commentUser User @relation(name:"comment", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  advertiseId String @map("advertiseId")
+  advertise Advertise @relation(name:"comments", fields: [advertiseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   comment String @db.VarChar()
   created_at DateTime @db.Time()
 }
 
 model Bid {
   id String @id @unique @default(uuid())
-  topBid Boolean @db.Boolean()
+  userId String 
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  advertiseId String 
+  advertise Advertise  @relation(fields: [advertiseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   offer Float @db.DoublePrecision()
   created_at DateTime @db.Time()
 }
@@ -73,4 +83,9 @@ model Vehicle {
   km Int @db.Integer()
   description String @db.VarChar()
   is_avalable Boolean @db.Boolean()
+}
+
+enum VehicleType {
+   CAR
+   BIKE 
 }
