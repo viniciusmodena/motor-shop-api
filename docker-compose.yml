@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:latest
+    env_file:
+      - ./.env
+    ports:
+      - 3333:5432
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+  app:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/fullstack_project?schema=public
+      - PORT=5000
+      - IS_COMPOSE=true
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - migration
+    volumes:
+      - .:/app
+
+  migration:
+    build: .
+    volumes:
+      - .:/code
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npx prisma migrate deploy'
+    depends_on:
+      - db
+    healthcheck:
+      test: psql -U $POSTGRES_USER $POSTGRES_DB || exit 1
+      interval: 1s
+      timeout: 5s
+      retries: 5
+      start_period: 5m
+
+volumes:
+  dbdata:
