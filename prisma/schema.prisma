@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id String @id @unique @default(uuid())
+  email String @unique @db.VarChar()
+  cpf String @unique @db.VarChar() 
+  name String @db.VarChar()
+  phone_number String  @db.VarChar()
+  birthdate DateTime @db.Date()
+  is_seller Boolean @db.Boolean()
+  description String @db.VarChar()
+  is_superuser Boolean @db.Boolean()
+  address  Address[] @relation(name:"userAddress")
+  advertises Advertise[] @relation(name: "seller")
+  comments Comment[] @relation(name:"comment")
+  bids Bid[] 
+
+
+  @@map("user")
+}
+
+model Address {
+  id String @id @unique @default(uuid())
+  cep String @db.VarChar()
+  state String @db.VarChar()
+  city String @db.VarChar()
+  street String @db.VarChar()
+  number String @db.VarChar()
+  complement String @db.VarChar()
+  ownerId String  @map("owner_id")
+  owner User @relation(name:"userAddress", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@map("address")
+}
+
+model Advertise {
+  id String @id @unique @default(uuid())
+  sellerId String @map("sellerId")
+  seller User @relation(name:"seller", fields: [sellerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  vehicleId String @map("vehicleId")
+  is_active Boolean @db.Boolean()
+  is_auction Boolean @db.Boolean()
+  vehicleType VehicleType @default(CAR) 
+  created_at DateTime @db.Time()
+  comments  Comment[] @relation("comments")
+  bids Bid[] 
+}
+
+model Comment {
+  id String @id @unique @default(uuid())
+  userId String @map("userId")
+  commentUser User @relation(name:"comment", fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  advertiseId String @map("advertiseId")
+  advertise Advertise @relation(name:"comments", fields: [advertiseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comment String @db.VarChar()
+  created_at DateTime @db.Time()
+}
+
+model Bid {
+  id String @id @unique @default(uuid())
+  userId String 
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  advertiseId String 
+  advertise Advertise  @relation(fields: [advertiseId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  offer Float @db.DoublePrecision()
+  created_at DateTime @db.Time()
+}
+model Vehicle {
+  id String @id @unique @default(uuid())
+  cover_img_url String @db.VarChar()
+  is_car Boolean @db.Boolean()
+  name String @db.VarChar()
+  price Float @db.DoublePrecision()
+  year Int @db.Integer()
+  brand String @db.VarChar()
+  km Int @db.Integer()
+  description String @db.VarChar()
+  is_avalable Boolean @db.Boolean()
+}
+
+enum VehicleType {
+   CAR
+   BIKE 
+}
